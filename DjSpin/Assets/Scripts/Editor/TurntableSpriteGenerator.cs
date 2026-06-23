@@ -66,8 +66,18 @@ public class TurntableSpriteGenerator
                 tex.SetPixel(x, y, color);
 
         tex.Apply();
-        SaveSprite(tex, "Assets/Sprites/Gameplay/" + name + ".png", Application.dataPath + "/Sprites/Gameplay/" + name + ".png");
+        byte[] bytes = tex.EncodeToPNG();
         Object.DestroyImmediate(tex);
+
+        string fullPath = Application.dataPath + "/Sprites/Gameplay/" + name + ".png";
+        string assetPath = "Assets/Sprites/Gameplay/" + name + ".png";
+        File.WriteAllBytes(fullPath, bytes);
+        AssetDatabase.ImportAsset(assetPath);
+        TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(assetPath);
+        importer.textureType = TextureImporterType.Sprite;
+        importer.spritePixelsPerUnit = 100;
+        EditorUtility.SetDirty(importer);
+        importer.SaveAndReimport();
     }
 
     static void SaveSprite(Texture2D tex, string assetPath, string fullPath)
