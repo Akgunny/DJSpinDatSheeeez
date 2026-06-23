@@ -10,6 +10,7 @@ public class TurntableSpriteGenerator
         GenerateCircle("LeftTurntable", new Color(0.2f, 0.6f, 1f), 256);
         GenerateCircle("RightTurntable", new Color(1f, 0.3f, 0.3f), 256);
         GenerateWave("WavePlayer", new Color(0.2f, 1f, 0.6f), 128, 48);
+        GenerateObstacle("Obstacle", new Color(1f, 0.5f, 0f), 48, 48);
         AssetDatabase.Refresh();
         Debug.Log("Sprites generated.");
     }
@@ -50,6 +51,19 @@ public class TurntableSpriteGenerator
                 tex.SetPixel(x, y, dist < 3f ? color : Color.clear);
             }
         }
+
+        tex.Apply();
+        SaveSprite(tex, "Assets/Sprites/Gameplay/" + name + ".png", Application.dataPath + "/Sprites/Gameplay/" + name + ".png");
+        Object.DestroyImmediate(tex);
+    }
+
+    static void GenerateObstacle(string name, Color color, int width, int height)
+    {
+        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+
+        for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+                tex.SetPixel(x, y, color);
 
         tex.Apply();
         SaveSprite(tex, "Assets/Sprites/Gameplay/" + name + ".png", Application.dataPath + "/Sprites/Gameplay/" + name + ".png");
