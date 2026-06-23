@@ -9,8 +9,9 @@ public class TurntableSpriteGenerator
     {
         GenerateCircle("LeftTurntable", new Color(0.2f, 0.6f, 1f), 256);
         GenerateCircle("RightTurntable", new Color(1f, 0.3f, 0.3f), 256);
+        GenerateWave("WavePlayer", new Color(0.2f, 1f, 0.6f), 128, 48);
         AssetDatabase.Refresh();
-        Debug.Log("Turntable sprites generated in Assets/Sprites/DJBooth/");
+        Debug.Log("Sprites generated.");
     }
 
     static void GenerateCircle(string name, Color color, int size)
@@ -20,27 +21,46 @@ public class TurntableSpriteGenerator
         Vector2 center = new Vector2(radius, radius);
 
         for (int y = 0; y < size; y++)
-        {
             for (int x = 0; x < size; x++)
             {
                 float dist = Vector2.Distance(new Vector2(x, y), center);
-                float alpha = Mathf.Clamp01(radius - dist);
                 tex.SetPixel(x, y, dist <= radius ? color : Color.clear);
             }
-        }
 
-        // Draw a simple line marker so you can see it spinning
         for (int i = 0; i < (int)radius; i++)
             tex.SetPixel((int)center.x + i, (int)center.y, Color.white);
 
         tex.Apply();
-
-        string path = "Assets/Sprites/DJBooth/" + name + ".png";
-        File.WriteAllBytes(Application.dataPath + "/Sprites/DJBooth/" + name + ".png", tex.EncodeToPNG());
+        SaveSprite(tex, "Assets/Sprites/DJBooth/" + name + ".png", Application.dataPath + "/Sprites/DJBooth/" + name + ".png");
         Object.DestroyImmediate(tex);
+    }
 
-        AssetDatabase.ImportAsset(path);
-        TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(path);
+    static void GenerateWave(string name, Color color, int width, int height)
+    {
+        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+
+        for (int x = 0; x < width; x++)
+        {
+            float t = (float)x / width;
+            float waveY = Mathf.Sin(t * Mathf.PI * 2f) * (height * 0.3f) + height / 2f;
+
+            for (int y = 0; y < height; y++)
+            {
+                float dist = Mathf.Abs(y - waveY);
+                tex.SetPixel(x, y, dist < 3f ? color : Color.clear);
+            }
+        }
+
+        tex.Apply();
+        SaveSprite(tex, "Assets/Sprites/Gameplay/" + name + ".png", Application.dataPath + "/Sprites/Gameplay/" + name + ".png");
+        Object.DestroyImmediate(tex);
+    }
+
+    static void SaveSprite(Texture2D tex, string assetPath, string fullPath)
+    {
+        File.WriteAllBytes(fullPath, tex.EncodeToPNG());
+        AssetDatabase.ImportAsset(assetPath);
+        TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(assetPath);
         importer.textureType = TextureImporterType.Sprite;
         importer.spritePixelsPerUnit = 100;
         EditorUtility.SetDirty(importer);
